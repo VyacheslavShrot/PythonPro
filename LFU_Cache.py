@@ -53,6 +53,7 @@ class LFUCache:
         return res.content[:first_n] if first_n else res.content
 
 
+
 print(memory())
 print(virtual_memory())
 print(LFUCache.fetch_url('https://www.google.com.ua/?hl=ru'))
