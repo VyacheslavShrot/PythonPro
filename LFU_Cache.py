@@ -4,6 +4,7 @@ import requests
 import sys
 import psutil
 
+
 def virtual_memory():
     def virtual_memory_lfu():
         a = str(psutil.virtual_memory())
