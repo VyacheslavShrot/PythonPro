@@ -70,17 +70,16 @@ def get_average_parameters():
 
 
 @app.route("/students")
-def generate_students():
-
-    students_count = request.args.get('count', default=100)
-
-    if not students_count.isdigit():
-        return 'ERROR: should be a number'
-
-    students_count = int(students_count)
-
-    if not 1 <= students_count <= 1000:
-        return 'ERROR: should be in range[1, 1000]'
+@use_kwargs(
+    {
+        'count': fields.Int(
+            missing=100,
+            validate=[validate.Range(min=1, max=1000)]
+        )
+    },
+    location='query'
+)
+def generate_students(count):
 
     faker_instance = Faker("UK")
     student_header = ['first_name', 'last_name', 'email', 'password', 'birthday']
@@ -89,7 +88,7 @@ def generate_students():
 
         writer = csv.writer(file)
         writer.writerow(student_header)
-        for _ in range(students_count):
+        for _ in range(count):
             student_data = [
                 {
                     faker_instance.first_name(): 'first_name',
@@ -102,11 +101,9 @@ def generate_students():
             writer.writerows(student_data)
 
     students = pd.read_csv('students.csv')
-
     students.to_html("Table.htm")
-    html_file = students.to_html()
 
-    return html_file
+    return students.to_html()
 
 
 @app.route('/bitcoin-rate')
@@ -141,16 +138,12 @@ def get_bitcoin_value(currency, count):
     if symbol_result.status_code not in (HTTPStatus.OK,):
         return Response('ERROR: Something went wrong', status=symbol_result.status_code)
 
-    symbol_result = symbol_result.json()
-    symbol = {}
-    done = {}
+    new = {'currency': currency}
+    first_dict.update(new)
 
     for entry in result:
 
-        new = {'currency': currency}
-        first_dict.update(new)
         first_dict['code'] = first_dict.get('', currency)
-
         second_dict[entry['code']] = second_dict.get('', entry['code'])
 
         if first_dict['code'] == second_dict[entry['code']]:
@@ -158,26 +151,7 @@ def get_bitcoin_value(currency, count):
             third_dict['code'] = first_dict['code']
             third_dict['rate'] = third_dict.get('', entry['rate'])
             third_dict['rate'] = third_dict['rate'] * count
-            #symbol.update(third_dict)
 
-            #for entry in symbol_result.get('data', {}):
-
-                #symbol[entry['code']] = symbol.get('', entry['symbol'])
-
-                #if third_dict['code'] == symbol['code']:
-
-                    #symbol[entry['code']] = symbol.get('', entry['symbol'])
-
-                    #done['code'] = third_dict['code']
-                    #done['decimals'] = third_dict['rate']
-                    #done['code'] = symbol.get('', entry['symbol'])
-                    #symbol['code'] = symbol.get('', entry['symbol'])
-
-                    #if done['code'] == symbol['code']:
-
-                        #symbol['code'] = currency
-
-                        #print(symbol, done)
 
     return third_dict
 
