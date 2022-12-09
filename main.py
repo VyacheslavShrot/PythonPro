@@ -4,13 +4,18 @@ import string
 import pandas as pd
 import httpx
 import csv
-import requests
+
+
+
+from helpers import format_records
+
+from database_handler import execute_qeury
 
 from faker import Faker
 
 from http import HTTPStatus
 
-from flask import Flask, request, Response
+from flask import Flask, Response
 
 from webargs import fields, validate
 
@@ -110,7 +115,7 @@ def generate_students(count):
 @use_kwargs(
     {
         'currency': fields.Str(
-            missing='USD'
+            load_default='USD'
                              ),
         'count': fields.Int(
             missing=1,
@@ -174,4 +179,110 @@ def get_astronauts():
 
     return statistics
 
-app.run(port=5001, debug=True)
+
+@app.route("/customers")
+@use_kwargs(
+    {
+        "first_name": fields.Str(
+            required=False,
+            load_default=None,
+            validate=[validate.Regexp("^[0-9]*")]
+        ),
+        "last_name": fields.Str(
+            required=False,
+            load_default=None,
+            validate=[validate.Regexp("^[0-9]*")]
+        )
+    },
+    location="query"
+)
+def get_all_customers(first_name, last_name):
+    query = "SELECT * FROM customers"
+
+    fields = {}
+
+    if first_name:
+        fields["FirstName"] = first_name
+
+    if last_name:
+        fields["LastName"] = last_name
+
+    if fields:
+        query += " WHERE " + " AND ".join(
+            f"{key}=?" for key in fields.keys()
+        )
+
+    records = execute_qeury(query=query, args=tuple(fields.values()))
+
+    return format_records(records)
+
+
+@app.route('/price')
+@use_kwargs(
+    {
+        'country': fields.Str(
+            required=False,
+            load_default=None
+        )
+    },
+    location='query'
+)
+def order_price(country):
+
+    query = 'SELECT SUM(UnitPrice * Quantity) AS Sales,' \
+            ' invoices.BillingCountry FROM invoice_items' \
+            ' JOIN invoices ON invoice_items.InvoiceId == invoices.InvoiceId ' \
+            'GROUP BY BillingCountry '
+
+    fields = {}
+
+    if country:
+        fields['BillingCountry'] = country
+
+    if fields:
+        query += 'HAVING ' + 'invoices.BillingCountry == '.join(
+            f"{key}=?" for key in fields.keys()
+        )
+
+    records = execute_qeury(query=query, args=tuple(fields.values()))
+
+
+    return format_records(records)
+
+
+@app.route('/track')
+@use_kwargs(
+    {
+        'TrackId': fields.Int(
+            required=False,
+            load_default=None
+        )
+    },
+    location='query'
+)
+def get_all_info_about_track(TrackId):
+
+    query = 'SELECT tracks.Name, Composer, albums.Title, media_types.Name, genres.Name FROM tracks ' \
+            'JOIN media_types ON tracks.MediaTypeId == media_types.MediaTypeId ' \
+            'JOIN albums ON tracks.AlbumId == albums.AlbumId ' \
+            'JOIN genres ON tracks.GenreId == genres.GenreId ' \
+            'GROUP BY TrackId '
+
+    fields = {}
+
+    if TrackId:
+        fields['TrackId'] = TrackId
+
+    if fields:
+        query += 'HAVING ' + 'TrackId == '.join(
+            f"{key}=?" for key in fields.keys()
+        )
+
+
+    records = execute_qeury(query=query, args=tuple(fields.values()))
+    print(records)
+    print(fields)
+
+    return format_records(records)
+
+app.run(port=5002, debug=True)
