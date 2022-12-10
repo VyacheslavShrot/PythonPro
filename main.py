@@ -280,8 +280,6 @@ def get_all_info_about_track(TrackId):
 
 
     records = execute_qeury(query=query, args=tuple(fields.values()))
-    print(records)
-    print(fields)
 
     return format_records(records)
 
