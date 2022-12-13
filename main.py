@@ -301,17 +301,10 @@ def stats_by_city(genre):
             'JOIN invoice_items ON tracks.TrackId = invoice_items.TrackId ' \
             'JOIN invoices ON invoice_items.InvoiceId = invoices.InvoiceId '
 
-    print(genre)
-
     fields = {}
 
     if genre:
         fields['genres.name'] = genre
-        print(fields)
-    elif genre != 'SELECT Name FROM genres;':
-        return 'INCORRECT GENRE(( ' \
-                'CHOOSE ANOTHER STYLE OF MUSIC ' \
-                'OR CHECK YOUR INPUT GENRE'
 
     if fields:
         query += 'WHERE ' + 'genres.Name == '.join(
@@ -320,12 +313,40 @@ def stats_by_city(genre):
         query += ' GROUP BY BillingCity) ' + \
                  'SELECT * FROM result WHERE genre_city IN (SELECT max(genre_city) FROM result);'
 
-
     records = execute_qeury(query=query, args=tuple(fields.values()))
+
+    if records == []:
+        return 'INCORRECT GENRE(( ' \
+                'CHOOSE ANOTHER STYLE OF MUSIC ' \
+                'OR CHECK YOUR INPUT GENRE'
 
     return format_records(records)
 
 
+class Point:
 
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-app.run(port=5002, debug=True)
+point = Point
+
+class Circle():
+
+    def __init__(self, circle_x, circle_y, radius):
+        self.circle_x = circle_x
+        self.circle_y = circle_y
+        self.radius = radius
+
+    def contains(self, point):
+
+        if (
+                (point.x - self.circle_x) * (point.x - self.circle_x) +
+                (point.y - self.circle_y) * (point.y - self.circle_y) <= self.radius * self.radius
+        ):
+            return True
+
+        else:
+            return False
+
+app.run(port=5001, debug=True)
