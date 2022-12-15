@@ -329,7 +329,6 @@ class Point:
         self.x = x
         self.y = y
 
-point = Point
 
 class Circle():
 
@@ -338,11 +337,11 @@ class Circle():
         self.circle_y = circle_y
         self.radius = radius
 
-    def contains(self, point):
+    def contains(self, Point):
 
         if (
-                (point.x - self.circle_x) * (point.x - self.circle_x) +
-                (point.y - self.circle_y) * (point.y - self.circle_y) <= self.radius * self.radius
+                (Point.x - self.circle_x) * (Point.x - self.circle_x) +
+                (Point.y - self.circle_y) * (Point.y - self.circle_y) <= self.radius * self.radius
         ):
             return True
 
