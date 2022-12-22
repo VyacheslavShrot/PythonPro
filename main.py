@@ -387,6 +387,11 @@ class colorizer:
         self.color_blue = Fore.BLUE
         self.color_green = Fore.GREEN
         self.color_red = Fore.RED
+        self.color_black = Fore.BLACK
+        self.color_yellow = Fore.YELLOW
+        self.color_white = Fore.WHITE
+        self.color_magenta = Fore.MAGENTA
+        self.color_cyan = Fore.CYAN
 
         if self.text_color == 'red':
             return self.color_red + self.text_color
@@ -397,6 +402,21 @@ class colorizer:
         elif self.text_color == 'green':
             return self.color_green + self.text_color
 
+        elif self.text_color == 'black':
+            return self.color_black + self.text_color
+
+        elif self.text_color == 'yellow':
+            return self.color_yellow + self.text_color
+
+        elif self.text_color == 'white':
+            return self.color_white + self.text_color
+
+        elif self.text_color == 'magenta':
+            return self.color_magenta + self.text_color
+
+        elif self.text_color == 'cyan':
+            return self.color_cyan + self.text_color
+
         else:
             return f'choose another color or check your input color'.upper()
 
@@ -405,7 +425,8 @@ class colorizer:
         return print('printed in default color')
 
 
-with colorizer('red') as c:
+
+with colorizer('cyan') as c:
     print(c)
 
 
