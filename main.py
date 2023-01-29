@@ -5,7 +5,6 @@ import string
 import pandas as pd
 import httpx
 import csv
-
 from helpers import format_records
 
 from database_handler import execute_qeury
