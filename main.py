@@ -6,8 +6,6 @@ import pandas as pd
 import httpx
 import csv
 
-
-
 from helpers import format_records
 
 from database_handler import execute_qeury
@@ -22,17 +20,17 @@ from webargs import fields, validate
 
 from webargs.flaskparser import use_kwargs
 
-from colorama import Fore, Back, Style
-
+from colorama import Fore, Style
 
 app = Flask(__name__)
+
 
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!!!!</p>"
 
 
-@app.route("/mykhailo")
+@app.route("/Mykhailo")
 def hello_mykhailo():
     return "<p>Hello, Mykhailo!!!!</p>"
 
@@ -48,12 +46,11 @@ def get_time():
         'length': fields.Int(
             missing=10,
             validate=[validate.Range(min=8, max=100)]
-                             )
+        )
     },
     location='query'
 )
 def generate_password(length):
-
     letters = string.ascii_letters
     digits = string.digits
     special_chars = string.punctuation
@@ -63,12 +60,11 @@ def generate_password(length):
 
     return password.join(random.choices(
         conditions, k=length)
-                         )
+    )
 
 
 @app.route("/parameters")
 def get_average_parameters():
-
     df = pd.read_csv(r'/Users/letsgooo/Desktop/hw.csv')
 
     mean1 = df[' Height(Inches)'].mean()
@@ -88,12 +84,10 @@ def get_average_parameters():
     location='query'
 )
 def generate_students(count):
-
     faker_instance = Faker("UK")
     student_header = ['first_name', 'last_name', 'email', 'password', 'birthday']
 
     with open('students.csv', 'w') as file:
-
         writer = csv.writer(file)
         writer.writerow(student_header)
         for _ in range(count):
@@ -119,7 +113,7 @@ def generate_students(count):
     {
         'currency': fields.Str(
             load_default='USD'
-                             ),
+        ),
         'count': fields.Int(
             missing=1,
             validate=[validate.Range(min=1, max=100)]
@@ -155,11 +149,9 @@ def get_bitcoin_value(currency, count):
         second_dict[entry['code']] = second_dict.get('', entry['code'])
 
         if first_dict['code'] == second_dict[entry['code']]:
-
             third_dict['code'] = first_dict['code']
             third_dict['rate'] = third_dict.get('', entry['rate'])
             third_dict['rate'] = third_dict['rate'] * count
-
 
     return third_dict
 
@@ -170,7 +162,7 @@ def get_astronauts():
 
     result = httpx.get(url)
 
-    if result.status_code not in (HTTPStatus.OK, ):
+    if result.status_code not in (HTTPStatus.OK,):
         return Response('ERROR: Something went wrong', status=result.status_code)
 
     result = result.json()
@@ -231,7 +223,6 @@ def get_all_customers(first_name, last_name):
     location='query'
 )
 def order_price(country):
-
     query = 'SELECT SUM(UnitPrice * Quantity) AS Sales,' \
             ' invoices.BillingCountry FROM invoice_items' \
             ' JOIN invoices ON invoice_items.InvoiceId == invoices.InvoiceId ' \
@@ -249,7 +240,6 @@ def order_price(country):
 
     records = execute_qeury(query=query, args=tuple(fields.values()))
 
-
     return format_records(records)
 
 
@@ -263,8 +253,7 @@ def order_price(country):
     },
     location='query'
 )
-def get_all_info_about_track(TrackId):
-
+def get_all_info_about_track(track_id):
     query = 'SELECT tracks.Name, Composer, albums.Title, media_types.Name, genres.Name FROM tracks ' \
             'JOIN media_types ON tracks.MediaTypeId == media_types.MediaTypeId ' \
             'JOIN albums ON tracks.AlbumId == albums.AlbumId ' \
@@ -273,14 +262,13 @@ def get_all_info_about_track(TrackId):
 
     fields = {}
 
-    if TrackId:
-        fields['TrackId'] = TrackId
+    if track_id:
+        fields['TrackId'] = track_id
 
     if fields:
         query += 'HAVING ' + 'TrackId == '.join(
             f"{key}=?" for key in fields.keys()
         )
-
 
     records = execute_qeury(query=query, args=tuple(fields.values()))
 
@@ -297,7 +285,6 @@ def get_all_info_about_track(TrackId):
     location='query'
 )
 def stats_by_city(genre):
-
     query = 'WITH result AS (SELECT BillingCity, genres.Name, COUNT(*) ' \
             'AS genre_city FROM tracks ' \
             'JOIN genres ON tracks.GenreId = genres.GenreId ' \
@@ -318,10 +305,10 @@ def stats_by_city(genre):
 
     records = execute_qeury(query=query, args=tuple(fields.values()))
 
-    if records == []:
+    if not records:
         return 'INCORRECT GENRE(( ' \
-                'CHOOSE ANOTHER STYLE OF MUSIC ' \
-                'OR CHECK YOUR INPUT GENRE'
+               'CHOOSE ANOTHER STYLE OF MUSIC ' \
+               'OR CHECK YOUR INPUT GENRE'
 
     return format_records(records)
 
@@ -340,11 +327,11 @@ class Circle:
         self.circle_y = circle_y
         self.radius = radius
 
-    def __contains__(self, Point):
+    def __contains__(self, point):
 
         if (
-                (Point.x - self.circle_x) * (Point.x - self.circle_x) +
-                (Point.y - self.circle_y) * (Point.y - self.circle_y) <= self.radius * self.radius
+                (point.x - self.circle_x) * (point.x - self.circle_x) +
+                (point.y - self.circle_y) * (point.y - self.circle_y) <= self.radius * self.radius
         ):
             return True
 
@@ -352,8 +339,8 @@ class Circle:
             return False
 
 
-class frange:
-
+class Frange:
+    @staticmethod
     def frange(start, stop=None, step=None):
         start = float(start)
 
@@ -380,8 +367,9 @@ class frange:
 
 class colorizer:
 
-    def __init__(self, text_color):
+    def __init__(self, text_color, text):
         self.text_color = text_color
+        self.text = text
 
     def __enter__(self):
         self.color_blue = Fore.BLUE
@@ -394,28 +382,28 @@ class colorizer:
         self.color_cyan = Fore.CYAN
 
         if self.text_color == 'red':
-            return self.color_red + self.text_color
+            return self.color_red + self.text_color + '\n' + self.text
 
         elif self.text_color == 'blue':
-            return self.color_blue + self.text_color
+            return self.color_blue + self.text_color + '\n' + self.text
 
         elif self.text_color == 'green':
-            return self.color_green + self.text_color
+            return self.color_green + self.text_color + '\n' + self.text
 
         elif self.text_color == 'black':
-            return self.color_black + self.text_color
+            return self.color_black + self.text_color + '\n' + self.text
 
         elif self.text_color == 'yellow':
-            return self.color_yellow + self.text_color
+            return self.color_yellow + self.text_color + '\n' + self.text
 
         elif self.text_color == 'white':
-            return self.color_white + self.text_color
+            return self.color_white + self.text_color + '\n' + self.text
 
         elif self.text_color == 'magenta':
-            return self.color_magenta + self.text_color
+            return self.color_magenta + self.text_color + '\n' + self.text
 
         elif self.text_color == 'cyan':
-            return self.color_cyan + self.text_color
+            return self.color_cyan + self.text_color + '\n' + self.text
 
         else:
             return f'choose another color or check your input color'.upper()
@@ -425,8 +413,7 @@ class colorizer:
         return print('printed in default color')
 
 
-
-with colorizer('cyan') as c:
+with colorizer('magenta', 'Hello World!!') as c:
     print(c)
 
 
@@ -512,7 +499,6 @@ c = Circle(10, 0, 10)
 c1 = Circle(100, 100, 5)
 
 p = Parallelogram(1, 2, 20, 30, 45)
-p.x
 p1 = Parallelogram(1, 2, 20, 30, 45)
 str(p1)
 
@@ -524,10 +510,5 @@ scene.add_figure(c)
 scene.add_figure(c1)
 
 scene.total_square()
-
-
-
-
-
 
 # app.run(port=5001, debug=True)
