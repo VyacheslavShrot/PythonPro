@@ -1,26 +1,26 @@
 def sum_of_intervals(intervals):
-    lst = sorted([list(n) for n in intervals])
+    sorted_intervals = sorted([list(n) for n in intervals])
     delete_lst = []
     result = []
     count = 0
 
     while count != len(intervals):
-        for n in range(len(lst) - 1):
-            if lst[n + 1][0] <= lst[0][1] <= lst[n + 1][1]:
-                lst[0][1] = lst[n + 1][1]
+        for n in range(len(sorted_intervals) - 1):
+            if sorted_intervals[n + 1][0] <= sorted_intervals[0][1] <= sorted_intervals[n + 1][1]:
+                sorted_intervals[0][1] = sorted_intervals[n + 1][1]
 
-                if lst[n + 1] not in delete_lst:
-                    delete_lst.append(lst[n + 1])
+                if sorted_intervals[n + 1] not in delete_lst:
+                    delete_lst.append(sorted_intervals[n + 1])
 
-            elif lst[n + 1][1] <= lst[0][1]:
+            elif sorted_intervals[n + 1][1] <= sorted_intervals[0][1]:
 
-                if lst[n + 1] not in delete_lst:
-                    delete_lst.append(lst[n + 1])
+                if sorted_intervals[n + 1] not in delete_lst:
+                    delete_lst.append(sorted_intervals[n + 1])
 
-        if lst[0] not in delete_lst or len(result) == 0:
-            result.append(lst[0])
+        if sorted_intervals[0] not in delete_lst or len(result) == 0:
+            result.append(sorted_intervals[0])
 
-        lst = lst[1:]
+        sorted_intervals = sorted_intervals[1:]
 
         count += 1
 
