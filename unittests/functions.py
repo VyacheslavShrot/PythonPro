@@ -24,3 +24,6 @@ def formatted_name(first_name, last_name, middle_name=''):
     else:
         full_name = first_name + ' ' + last_name
     return full_name.title()
+
+
+print(formatted_name("sdad", "asdad"))
